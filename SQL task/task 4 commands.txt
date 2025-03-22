@@ -1,0 +1,375 @@
+1.employees
+
+CREATE TABLE employees(
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Email VARCHAR(100),
+    Phone VARCHAR(20) ,
+    HireDate DATE,
+    DepartmentID INT,
+    ManagerID INT,
+    Salary INT,
+    CONSTRAINT FK_Manager FOREIGN KEY(ManagerID) REFERENCES employees(EmployeeID)
+
+);
+
+
+2.Departments
+
+CREATE TABLE departments(
+    DepartmentID INT PRIMARY KEY,
+    DepartmentName VARCHAR(30),
+    ManagerID INT ,
+    FOREIGN KEY (ManagerID) REFERENCES employees(ManagerID)
+);
+
+
+alter command (for DepartmentID )-
+
+ALTER TABLE employees
+ADD CONSTRAINT FK_Department FOREIGN KEY (DepartmentID) REFERENCES departments(DepartmentID);
+
+
+
+
+3.Performance_Reviews
+
+CREATE TABLE performance_reviews(  
+    ReviewID INT PRIMARY KEY,-- (Primary Key)
+    EmployeeID INT,-- (Foreign Key)
+    ReviewDate DATE,
+    PerformanceScore VARCHAR(30),-- (e.g., 'Excellent', 'Good', 'Average', 'Poor')
+    Comments VARCHAR(50),
+    FOREIGN KEY(EmployeeID) REFERENCES employees(EmployeeID)
+);
+
+
+
+
+4.Payroll
+
+CREATE TABLE payroll(
+    ReviewID INT PRIMARY KEY,-- (Primary Key)
+    EmployeeID INT,-- (Foreign Key)
+    PaymentDate DATE,
+    Amount DECIMAL(10,2),
+    PaymentMethod VARCHAR(30), -- (e.g., 'Bank Transfer', 'Check')
+    FOREIGN KEY(EmployeeID) REFERENCES employees(EmployeeID)
+);
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------
+
+q1. Retrieve the names and contact details of employees hired after January 1, 2023.
+SELECT FirstName , Email,Phone ,HireDate
+FROM 
+employees
+WHERE 
+Hiredate > '2023-01-01';
+
+
+
+
+q2. Find the total payroll amount paid to each department
+
+SELECT d.DepartmentName,d.DepartmentID , SUM(p.Amount) AS Total_payroll_amt
+FROM payroll as p
+JOIN 
+employees AS e 
+ON p.EmployeeID = e.EmployeeID
+JOIN
+departments AS d 
+ON e.DepartmentID = d.DepartmentID
+GROUP BY d.DepartmentName,d.DepartmentID;
+
+
+
+
+q3. List all employees who have not been assigned a manager.
+
+SELECT EmployeeID,FirstName,DepartmentID,ManagerID 
+FROM 
+employees 
+WHERE 
+ManagerID IS NULL;
+
+
+
+
+q4. Retrieve the highest salary in each department along with the employee’s name.
+
+SELECT DepartmentID ,MAX(Salary)
+FROM employees
+GROUP BY
+DepartmentID;
+
+
+
+
+
+q5. Find the most recent performance review for each employee
+
+SELECT EmployeeID, MAX(ReviewDate) AS Most_Recent_Review
+FROM performance_reviews
+GROUP BY EmployeeID;
+
+
+
+
+
+
+q6. Count the number of employees in each department.
+
+SELECT DepartmentID ,COUNT(EmployeeID) AS Total_employee
+FROM employees
+GROUP BY 
+DepartmentID;
+
+
+
+
+
+
+
+
+q7. List all employees who have received a performance score of "Excellent." 
+
+(using 1 table)
+SELECT EmployeeID , PerformanceScore,Comments
+FROM performance_reviews
+WHERE 
+PerformanceScore = 'Excellent'
+;
+
+(using 2 table)
+SELECT e.EmployeeID ,e.FirstName ,p.PerformanceScore,p.Comments
+FROM performance_reviews AS p
+JOIN 
+employees AS e 
+ON
+e.EmployeeID = p.EmployeeID
+WHERE 
+PerformanceScore = 'Excellent';
+
+
+
+
+
+
+q8. most frequently used payment method in payroll
+
+SELECT PaymentMethod , COUNT(PaymentMethod) AS Most_frequently_used
+FROM payroll
+GROUP BY
+PaymentMethod
+ORDER BY Most_frequently_used DESC
+LIMIT 1;
+
+
+
+
+
+
+
+
+
+q9. Retrieve the top 5 highest-paid employees along with their departments.
+
+SELECT EmployeeID , FirstName,DepartmentID , Salary
+FROM employees
+ORDER BY
+Salary DESC
+LIMIT 5;
+
+
+
+
+
+q10. Show details of all employees who report directly to a specific manager (e.g.,ManagerID = 101).
+
+SELECT EmployeeID,FirstName,DepartmentID,Salary,ManagerID
+FROM employees
+WHERE
+ManagerID = 103;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

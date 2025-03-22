@@ -1,0 +1,275 @@
+customer - 
+
+CREATE TABLE customers(
+    customer_id INT NOT NULL,
+    first_name VARCHAR(100) ,
+    last_name VARCHAR(100) ,
+    email VARCHAR(100) ,
+    phone VARCHAR(20) ,
+    address TEXT,
+    join_date DATE,
+    PRIMARY key(customer_id)
+);   
+
+
+product - 
+
+CREATE TABLE products(
+    product_id INT NOT NULL,
+    product_name VARCHAR(100) ,
+    category VARCHAR(50) ,
+    price DECIMAL(10,2) ,
+    stock_quantity INT,
+    PRIMARY key(product_id)
+);   
+
+
+orders- 
+
+CREATE TABLE orders(
+    order_id INT NOT NULL PRIMARY KEY,
+    customer_id INT ,
+    order_date DATE ,
+    total_amount DECIMAL(10,2) ,
+    order_status VARCHAR(20) CHECK (order_status IN ('Pending','Shipped','Delivered','Canceled')),
+    FOREIGN key(customer_id) REFERENCES customers(customer_id)
+    
+);  
+
+
+
+orderdetails-
+
+CREATE TABLE orderdetails(
+    order_detail_id INT  NOT NULL PRIMARY KEY,
+    order_id INT  ,
+    product_id INT  ,
+    quantity INT ,
+    unit_price DECIMAL(10,2) ,
+    FOREIGN key(order_id) REFERENCES orders(order_id),
+    FOREIGN key(product_id) REFERENCES products(product_id)
+    
+);
+
+
+
+
+
+
+
+payments- 
+
+CREATE TABLE payments(
+    payment_id INT   NOT NULL PRIMARY KEY,
+    order_id INT  ,
+    payment_date DATE  ,
+    payment_amount DECIMAL(10,2)  ,
+    payment_method VARCHAR(20) CHECK (payment_method IN ('Debit Card', 'Credit Card', 'PayPal')),
+    
+    FOREIGN key(order_id) REFERENCES orders(order_id)
+    
+); 
+
+
+
+-----------------------------------------------------------------------------------------------------------
+
+#Queries
+
+
+
+q1. Find the Total Number of Orders for Each Customer
+
+SELECT c.first_name , c.customer_id , COUNT(o.order_id) AS Total_orders
+FROM customers AS c 
+LEFT JOIN
+orders AS o 
+ON 
+c.customer_id = o.customer_id
+GROUP BY 
+c.first_name , c.customer_id;
+
+
+
+q2. Find the Total Sales Amount for Each Product (Revenue per Product)
+
+SELECT p.product_id,p.product_name,SUM(o.quantity*o.unit_price) AS Revenue_per_Product 
+FROM products as p 
+INNER JOIN 
+order_details AS o 
+ON
+p.product_id = o.product_id
+GROUP BY 
+p.product_id,p.product_name;
+
+
+
+q3. Find the Most Expensive Product Sold
+
+SELECT p.product_id,p.product_name, MAX(o.unit_price) AS highest_price
+FROM products AS p 
+LEFT JOIN 
+order_details AS o 
+ON 
+p.product_id = o.product_id
+GROUP BY 
+ p.product_id,p.product_name
+ORDER BY highest_price DESC 
+LIMIT 3;
+
+
+q4. Get the List of Customers Who Have Placed Orders in the Last 30 Days
+SELECT c.customer_id , c.first_name, o.order_date
+FROM 
+customers as c 
+INNER JOIN
+orders as o
+ON 
+c.customer_id = o.order_id
+WHERE 
+o.order_date >= CURRENT_DATE - INTERVAL 30 DAY 
+ORDER BY 
+o.order_date;
+
+
+
+q5. Calculate the Total Amount Paid by Each Customer
+(give only customer_id)
+SELECT o.order_id,o.customer_id ,SUM(P.payment_amount) AS Total_Amount 
+FROM 
+orders AS o 
+JOIN 
+payments AS p
+ON
+O.order_id = P.order_id
+GROUP BY 
+o.order_id,o.customer_id;
+
+
+
+
+
+(gives customer name with customer_id)
+SELECT c.first_name , o.customer_id ,o.order_id,SUM(P.payment_amount) AS Total_Amount 
+FROM 
+customers AS c 
+JOIN
+orders AS o 
+ON
+c.customer_id = o.customer_id
+JOIN 
+payments AS p
+ON
+O.order_id = P.order_id
+GROUP BY 
+c.first_name , o.customer_id ,o.order_id;
+
+
+
+
+
+q6.Get the Number of Products Sold by Category
+
+SELECT p.category , SUM(quantity) AS Total_sold
+FROM products AS p 
+JOIN 
+order_details AS o 
+ON 
+p.product_id = o.product_id
+GROUP BY 
+p.category
+ORDER BY
+Total_sold DESC;
+
+
+
+
+q7. List All Orders That Are Pending (i.e., Orders that haven't been shipped yet)
+
+SELECT * 
+FROM orders 
+WHERE order_status = 'Pending';
+
+
+
+
+q8. Find the Average Order Value (Total Order Amount / Number of Orders)
+
+SELECT SUM(total_amount) / COUNT(order_id) AS average_order_value
+FROM 
+orders;
+
+
+
+
+q9. List the Top 5 Customers Who Have Spent the Most Money
+
+SELECT c.customer_id,c.first_name ,SUM(p.payment_amount) AS Max_Amount
+FROM customers AS c 
+JOIN 
+orders AS o 
+ON c.customer_id = o.customer_id
+JOIN
+payments AS p
+ON 
+o.order_id = p.order_id
+GROUP BY
+C.customer_id,C.first_name
+ORDER BY Max_Amount DESC
+LIMIT 5;
+
+
+
+
+
+q10. Find the Products That Have Never Been Sold
+
+SELECT p.product_id,p.product_name,p.category,price 
+FROM products AS p
+LEFT JOIN
+order_details AS o 
+ON 
+p.product_id = o.product_id
+WHERE 
+o.product_id IS NULL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

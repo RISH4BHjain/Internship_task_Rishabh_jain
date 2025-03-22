@@ -1,0 +1,292 @@
+drivers-
+CREATE TABLE drivers(
+    DriverID INT PRIMARY KEY,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Phone VARCHAR(20),
+    City VARCHAR(30),
+    VehicleType VARCHAR(30),
+    Rating INT CHECK (Rating >=0 AND Rating <=5)
+);  
+
+
+
+riders -
+CREATE TABLE riders(
+    RiderID INT PRIMARY KEY,
+    First_Name VARCHAR(30),
+    Last_Name VARCHAR(30),
+    Phone VARCHAR(20),
+    City VARCHAR(20),
+    JoinDate DATE
+);    
+
+
+
+rides - 
+CREATE TABLE rides(
+   RideID INT PRIMARY KEY,
+   RiderID INT,
+   DriverID INT,
+   RideDate DATE,
+   PickupLocation VARCHAR(30),
+   DropLocation VARCHAR(30),
+   Distance INT,
+   Fare INT,
+   RideStatus VARCHAR(30),
+   FOREIGN KEY(RiderID) REFERENCES riders(RiderID),
+   FOREIGN KEY(DriverID) REFERENCES drivers(DriverID)
+);
+
+
+
+payment-
+CREATE TABLE payments(
+   PaymentID INT Primary Key,
+   RideID INT,
+   PaymentMethod VARCHAR(20),
+   Amount INT,
+   PaymentDate DATE,
+   FOREIGN KEY(RideID) REFERENCES rides(RideID)
+);    
+
+
+
+
+
+
+q1. Retrieve the names and contact details of all drivers with a rating of 4.5 or higher.
+SELECT FirstName,LastName,Phone 
+FROM drivers 
+WHERE Rating 
+BETWEEN 4.5 AND 5;
+
+
+q2. Find the total number of rides completed by each driver.
+SELECT DriverID, COUNT(DISTINCT(DriverID)) 
+FROM rides
+WHERE RideStatus = 'Completed'
+GROUP BY 
+DriverID;
+
+
+q3. List all riders who have never booked a ride
+SELECT r.RiderID ,r.First_Name,r.Last_Name
+FROM 
+riders AS r 
+LEFT JOIN 
+rides AS s 
+ON
+r.RiderID = s.RiderID
+WHERE
+s.RideID IS NULL;
+
+
+
+q4. Calculate the total earnings of each driver from completed rides.
+SELECT DriverID ,SUM(Fare) 
+FROM 
+rides
+WHERE
+RideStatus = 'Completed'
+GROUP BY 
+DriverID;
+
+
+
+{ye sirf total fare batayega jo "Completed" hai
+
+SELECT RideStatus ,Sum(Fare)
+FROM rides
+WHERE 
+RideStatus = 'Completed'
+GROUP BY
+RideStatus;
+}
+
+
+
+q5. Retrieve the most recent ride for each rider
+SELECT RiderID,RideID,MAX(RideDate)
+FROM rides
+GROUP BY
+RiderID;
+
+(this will retrive only rider_id detail and recent date of ride)
+
+
+
+
+SELECT R.*
+FROM Rides R
+JOIN (
+    SELECT RiderID, MAX(RideDate) AS MostRecentRide
+    FROM Rides
+    GROUP BY RiderID
+) AS RecentRides
+ON R.RiderID = RecentRides.RiderID AND R.RideDate = RecentRides.MostRecentRide;
+
+(this will retrive ride detail and recent date of ride)
+
+
+
+
+q 6. Count the number of rides taken in each city
+
+SELECT r.City , COUNT(s.RideID)
+FROM
+riders AS r
+LEFT JOIN 
+rides AS s 
+ON
+r.RiderID = s.RiderID
+GROUP BY 
+r.City;
+
+
+
+
+
+
+
+q7. List all rides where the distance was greater than 20 km.
+SELECT * FROM rides WHERE Distance >20;
+
+
+
+
+q8. Identify the most preferred payment method.(paymentID and paymentmethod mai doubt)
+
+SELECT PaymentMethod , COUNT(PaymentID)
+FROM payments
+GROUP BY 
+PaymentMethod;
+
+
+
+q9.Find the top 3 highest-earning drivers. is my query is correct 
+
+SELECT DriverID,SUM(Fare) AS TOTAL_EARNING 
+FROM rides
+GROUP BY 
+DriverID
+ORDER BY 
+TOTAL_EARNING DESC
+LIMIT 3;
+
+(for single column)
+
+
+
+
+(for double columns)
+SELECT d.FirstName,d.LastName,r.DriverID,SUM(r.Fare) AS TOTAL_EARNING 
+FROM rides AS r
+LEFT JOIN 
+drivers AS d 
+ON
+r.DriverID = d.DriverID
+GROUP BY 
+DriverID
+ORDER BY 
+TOTAL_EARNING DESC
+LIMIT 3;
+
+
+
+
+
+
+
+q10. Retrieve details of all cancelled rides along with the rider's and driver's names.
+query 1 -  
+SELECT s.First_Name,s.RiderID, d.DriverID,d.FirstName, r.RideID,r.RideDate,r.PickupLocation,r.DropLocation,r.Fare,r.RideStatus
+FROM rides r
+INNER JOIN riders s 
+ON r.RiderID = s.RiderID
+INNER JOIN drivers d 
+ON r.DriverID = d.DriverID
+WHERE r.RideStatus = 'Cancelled';
+.
+.
+.
+.
+.
+.
+.
+.
+query 2 - 
+SELECT s.First_Name,s.RiderID, d.DriverID,d.FirstName, r.RideID,r.RideDate,r.PickupLocation,r.DropLocation,r.Fare,COUNT(r.RideStatus)
+FROM rides as r 
+JOIN 
+(SELECT d.DriverID , d.FirstName FROM drivers AS d) AS d 
+ON d.DriverID = r.DriverID
+JOIN
+(SELECT RiderID, First_Name FROM riders AS s ) AS s 
+ON r.RiderID = s.RiderID
+WHERE r.RideStatus = 'Cancelled'
+GROUP BY r.RideID;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

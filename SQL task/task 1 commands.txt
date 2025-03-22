@@ -1,0 +1,224 @@
+q1- 
+SELECT department_id , COUNT('no of students') FROM students GROUP BY department_id;
+
+
+
+
+q2 -
+SELECT p.first_name,c.course_id ,c.course_name FROM professors AS p ,courses AS c WHERE (P.professor_id = C.professor_id) AND (p.professor_id = 2);
+
+
+
+
+
+q3 - 
+
+SELECT 
+    c.course_name AS Course,
+    AVG(CASE 
+            WHEN e.grade = 'A' THEN 4
+            WHEN e.grade = 'B' THEN 3
+            WHEN e.grade = 'C' THEN 2
+            ELSE NULL -- In case of invalid or missing grades
+        END) AS Average_Grade
+FROM 
+    courses c
+JOIN 
+    enrollments e ON c.course_id = e.course_id
+GROUP BY 
+    c.course_id, c.course_name;
+
+
+
+
+
+
+q4 - no null values in my data
+
+SELECT s.student_id,s.first_name,s.last_name 
+FROM 
+students AS s LEFT JOIN enrollments AS e 
+ON
+s.student_id = e.student_id 
+WHERE
+e.enrollment_id = NULL;
+
+
+
+
+
+
+
+
+q5 - 
+SELECT d.department_name , COUNT(c.course_id) 
+FROM
+courses AS c 
+LEFT JOIN
+department AS d 
+ON
+c.department_id = d.department_id
+GROUP BY 
+d.department_name;
+
+
+
+
+
+
+
+
+
+
+q6- List All Students Who Have Taken a Specific Course (e.g., 'Database Systems')
+
+SELECT s.student_id,s.first_name, s.last_name
+FROM
+students AS s 
+INNER JOIN 
+enrollments AS e 
+ON 
+s.student_id = e.student_id
+LEFT JOIN 
+courses AS c 
+ON
+e.course_id = c.course_id
+WHERE 
+course_name = 'Database Systems';
+
+
+
+
+
+
+
+
+q7. Find the Most Popular Course Based on Enrollment Numbers
+
+SELECT c.course_name ,COUNT(enrollment_id)
+FROM 
+courses AS c 
+LEFT JOIN 
+enrollments AS e 
+ON 
+c.course_id = e.course_id
+GROUP BY 
+c.course_name ,c.course_name;
+
+
+
+
+
+
+
+
+
+q8 - 
+SELECT d.department_name , AVG(c.credits)
+FROM 
+students AS s 
+
+JOIN 
+enrollments AS e
+ON
+s.student_id = e.student_id
+
+JOIN 
+courses AS c 
+ON
+e.course_id = c.course_id
+
+JOIN 
+department AS d
+ON
+c.department_id = d.department_id
+
+GROUP BY
+d.department_id, d.department_name;
+
+
+
+
+
+
+
+
+q9 = 
+SELECT p.first_name, p.last_name,p.professor_id,COUNT(c.department_id)
+FROM
+professors AS p 
+INNER JOIN 
+courses AS c
+ON
+p.professor_id = c.professor_id
+
+GROUP BY 
+p.professor_id
+HAVING
+COUNT(c.department_id)>1;
+
+
+
+
+
+
+
+
+
+
+q10= 
+SELECT c.course_name, MAX(e.grade), MIN(e.grade)
+FROM
+courses AS c 
+INNER JOIN 
+enrollments AS e 
+ON
+c.course_id = e.course_id
+
+WHERE
+c.course_name = 'Operating Systems';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
